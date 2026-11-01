@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<main class="container">
+
+    <header>
+        <p class="eyebrow">BEGINNER PYTHON PROJECT</p>
+        <h1>AI-Powered Resume Analyzer</h1>
+        <p class="subtitle">
+            Upload a resume to check its structure, skills and job-description alignment.
+        </p>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <section class="panel">
+        <form method="POST" enctype="multipart/form-data">
+
+            <label for="resume">
+                Resume file <span>(PDF, DOCX or TXT; max 5 MB)</span>
+            </label>
+
+            <input
+                id="resume"
+                type="file"
+                name="resume"
+                accept=".pdf,.docx,.txt"
+                required
+            >
+
+            <label for="job_description">
+                Job description <span>(optional)</span>
+            </label>
+
+            <textarea
+                id="job_description"
+                name="job_description"
+                rows="6"
+                placeholder="Paste the job description here..."
+            ></textarea>
+
+            <button type="submit">Analyze Resume</button>
+
+        </form>
+    </section>
+
+    {% if result %}
+
+    <section class="results">
+
+        <div class="result-heading">
+            <div>
+                <p class="eyebrow">ANALYSIS REPORT</p>
+                <h2>{{ result.filename }}</h2>
+            </div>
+
+            <div class="score">
+                <strong>{{ result.score }}</strong>
+                <span>/100 checklist</span>
+            </div>
+        </div>
+
+        <p class="note">
+            This is a basic rule-based checklist, not a real ATS score
+            or hiring prediction.
+        </p>
+
+        <div class="stats">
+
+            <div>
+                <strong>{{ result.word_count }}</strong>
+                <span>Words</span>
+            </div>
+
+            <div>
+                <strong>{{ result.skills|length }}</strong>
+                <span>Skills found</span>
+            </div>
+
+            <div>
+                <strong>{{ result.sections_found|length }}/6</strong>
+                <span>Sections found</span>
+            </div>
+
+            {% if result.match_percent is not none %}
+            <div>
+                <strong>{{ result.match_percent }}%</strong>
+                <span>JD term overlap</span>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div class="columns">
+
+            <article class="card">
+                <h3>Detected Skills</h3>
+
+                {% if result.skills %}
+                    <div class="chips">
+                        {% for skill in result.skills %}
+                            <span>{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No matching skills detected.</p>
+                {% endif %}
+            </article>
+
+            <article class="card">
+                <h3>Resume Sections</h3>
+
+                <p>
+                    <b>Found:</b>
+                    {{ result.sections_found|join(", ") if result.sections_found else "None" }}
+                </p>
+
+                <p>
+                    <b>Not detected:</b>
+                    {{ result.missing_sections|join(", ") if result.missing_sections else "None" }}
+                </p>
+            </article>
+
+        </div>
+
+        {% if result.match_percent is not none %}
+        <article class="card">
+            <h3>Job Description Terms Found</h3>
+
+            <p>
+                {{ result.matched_terms|join(", ") if result.matched_terms else "No matching terms found." }}
+            </p>
+
+            <p class="note">
+                This compares words only and does not understand context.
+            </p>
+        </article>
+        {% endif %}
+
+        <article class="card">
+            <h3>Improvement Suggestions</h3>
+
+            <ul>
+                {% for suggestion in result.suggestions %}
+                    <li>{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </article>
+
+        <div class="download-section">
+            <a href="{{ url_for('download_report') }}" class="download-btn">
+                Download PDF Report
+            </a>
+        </div>
+
+    </section>
+
+    {% endif %}
+
+    <footer>
+        Uploaded files are deleted from the server after analysis.
+    </footer>
+
+</main>
+</body>
+</html>
