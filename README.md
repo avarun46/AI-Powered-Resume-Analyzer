@@ -117,6 +117,19 @@ The checklist score is not a real ATS score, hiring prediction, or guarantee of 
 - Add secure authentication and cloud deployment.
 
 ## Author
+## Screenshots
+
+### Homepage
+![Homepage](homepage.png)
+
+### Resume Analysis
+![Analysis Results](analysis.png)
+
+### Job Description Matching
+![Job Matching](job-matching.png)
+
+### PDF Report
+![PDF Report](pdf-report.png)
 
 **Varun A**
 
